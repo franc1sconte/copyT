@@ -1,0 +1,15 @@
+{
+    "urls": {
+        "login": "https://app.tichacademy.com/login",
+        "dashboard": "https://app.tichacademy.com/dashboard",
+        "chatbot_tito": "https://app.tichacademy.com/tito"
+    },
+    "dashboard": {
+        "user_display_1": "TichQA",
+        "user_display_2": "TichQADos",
+        "alert_premium_msg": "Te damos la bienvenida a tu prueba gratuitaTenés 5 vidas para probar Tich AI 100% gratis. Renová 5 vidas cada 24hs con un pago único de ${{precio}} o explorá nuestros planes Premium ilimitados."
+    },
+    "chatbot_tito" : {
+        "placeholder_msg": "Soy Tito 👋 Podés consultarme sobre: • Organización • Métodos de estudio • Dudas sobre el contenido de tus materias."
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "user1": {
+        "id": "cmg6n3c5o00pvzuwad6evliuv",
+        "name": "tichUser2",
+        "email": "tich.user.2@gmail.com",
+        "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIVH_T4goGo8ZVbto06AZc63GYTb-VohfzcNmqKrZbi8hZEtg=s96-c",
+        "wasOnboarded": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtZzZuM2M1bzAwcHZ6dXdhZDZldmxpdXYiLCJuYW1lIjoiVGljaFFBRG9zIiwiZW1haWwiOiJ0aWNoLnVzZXIuMkBnbWFpbC5jb20iLCJhdmF0YXIiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJVkhfVDRnb0dvOFpWYnRvMDZBWmM2M0dZVGItVm9oZnpjTm1xS3JaYmk4aFpFdGc9czk2LWMiLCJpYXQiOjE3NTkyNDIwODcsImV4cCI6MTc5MDc5OTY4N30.PL_G_lByGCm2lLuF-8LgoU5MxnmTPhx50TcoT7XeZms",
+        "isAuthenticated": true
+    }
+}

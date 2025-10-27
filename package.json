@@ -1,0 +1,27 @@
+{
+  "name": "automation-tich",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean:reports": "rimraf cypress/reports",
+    "test:clean:chrome": "npm run clean:reports && cypress run --browser chrome",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/educabot/automation-tich.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/educabot/automation-tich/issues"
+  },
+  "homepage": "https://github.com/educabot/automation-tich#readme",
+  "devDependencies": {
+    "cypress": "^15.2.0",
+    "cypress-mochawesome-reporter": "^4.0.2",
+    "rimraf": "^6.0.1"
+  }
+}
