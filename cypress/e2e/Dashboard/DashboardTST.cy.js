@@ -44,6 +44,8 @@ describe('Dashboard', () => {
     // Verificamos que el nombre de usuario se muestra correctamente en el dashboard
     cy.beVisible(DashboardPage.usuarioDashboardAssert(asserts.dashboard.user_display_1))
 
+    cy.beVisible('div:contains("Plan Inventado")')
+
     // Validamos que todos los elementos del header esten visibles
     DashboardPage.elementosHeaderVisibles(tipoPlan)
 
