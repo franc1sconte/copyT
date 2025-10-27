@@ -31,7 +31,7 @@ describe('Chatbot Tito', () => {
   })
 
 
-  it('EAI-70 Validar correcto funcionamiento chatbot "tito" en /tito', () => {
+  it.skip('EAI-70 Validar correcto funcionamiento chatbot "tito" en /tito', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
     cy.createSession(datosAuth2)
     

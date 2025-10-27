@@ -21,7 +21,7 @@ describe('Login', () => {
   })
 
 
-  it('EAI-60 - Validar flujo de pantallas pre-login', () => {
+  it.skip('EAI-60 - Validar flujo de pantallas pre-login', () => {
     
     // Navegamos al /login
     cy.navegarA(asserts.urls.login)

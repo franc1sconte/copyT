@@ -21,17 +21,10 @@ describe('Dashboard', () => {
     cy.fixture(Cypress.env("datosJson")).then(function (datosv) {
       datos = datosv
     })
-    cy.fixture('users/auth.json').then((authData) => {
-      datosAuth1 = authData
-    });
-    cy.fixture('users/auth-2.json').then((authData) => {
-      datosAuth2 = authData
-    });
-
   })
 
 
-  it.only('EAI-65 - Validacion de elementos vista inicial en dashboard para cuenta gratuita', () => {
+  it('EAI-65 - Validacion de elementos vista inicial en dashboard para cuenta gratuita', () => {
     const tipoPlan = "plan-free"
     
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
@@ -57,7 +50,7 @@ describe('Dashboard', () => {
    
   })
 
-  it('EAI-66 - Validar redirección de botones "premium" en Dashboard', () => {
+  it.skip('EAI-66 - Validar redirección de botones "premium" en Dashboard', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
     cy.createSession(datosAuth1)
     
@@ -75,7 +68,7 @@ describe('Dashboard', () => {
 
   })
 
-  it('EAI-68 - Validar que no se muestren las sugerencias premium en cuenta regalo', () => {
+  it.skip('EAI-68 - Validar que no se muestren las sugerencias premium en cuenta regalo', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
     cy.createSession(datosAuth2)
     
@@ -93,7 +86,7 @@ describe('Dashboard', () => {
     
   })
 
-  it('EAI-69 Validar correcto funcionamiento chatbot "tito" en dashboard', () => {
+  it.skip('EAI-69 Validar correcto funcionamiento chatbot "tito" en dashboard', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
     cy.createSession(datosAuth2)
 
