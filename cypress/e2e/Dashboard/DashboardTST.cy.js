@@ -15,10 +15,16 @@ describe('Dashboard', () => {
 
   beforeEach(() => {
     // --> Traemos los asserts y datos antes de cada test
-    cy.fixture(Cypress.env("assertsJson")).then(function (assertsv) {
+    const assertsFixture = Cypress.env("assertsJson") || "asserts"
+    const datosFixture = Cypress.env("datosJson") || "datos"
+
+    // Log para diagnosticar en CI (GitHub Actions)
+    cy.log(`Cypress.env assertsJson=${assertsFixture} datosJson=${datosFixture}`)
+
+    cy.fixture(assertsFixture).then(function (assertsv) {
       asserts = assertsv
     })
-    cy.fixture(Cypress.env("datosJson")).then(function (datosv) {
+    cy.fixture(datosFixture).then(function (datosv) {
       datos = datosv
     })
   })
