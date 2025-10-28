@@ -11,17 +11,24 @@ describe('Login', () => {
 
   // --> Traemos los asserts y datos antes de cada test
   beforeEach(() => {
-    cy.fixture(Cypress.env("assertsJson")).then(function (assertsv) {
+    // --> Traemos los asserts y datos antes de cada test
+    const assertsFixture = Cypress.env("assertsJson") || "asserts"
+    const datosFixture = Cypress.env("datosJson") || "datos"
+
+    // Log para diagnosticar en CI (GitHub Actions)
+    cy.log(`Cypress.env assertsJson=${assertsFixture} datosJson=${datosFixture}`)
+
+    cy.fixture(assertsFixture).then(function (assertsv) {
       asserts = assertsv
     })
-    cy.fixture(Cypress.env("datosJson")).then(function (datosv) {
+    cy.fixture(datosFixture).then(function (datosv) {
       datos = datosv
     })
     
   })
 
 
-  it.skip('EAI-60 - Validar flujo de pantallas pre-login', () => {
+  it('EAI-60 - Validar flujo de pantallas pre-login', () => {
     
     // Navegamos al /login
     cy.navegarA(asserts.urls.login)

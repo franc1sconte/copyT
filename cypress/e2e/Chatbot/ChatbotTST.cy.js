@@ -15,28 +15,37 @@ describe('Chatbot Tito', () => {
 
   beforeEach(() => {
     // --> Traemos los asserts y datos antes de cada test
-    cy.fixture(Cypress.env("assertsJson")).then(function (assertsv) {
+    const assertsFixture = Cypress.env("assertsJson") || "asserts"
+    const datosFixture = Cypress.env("datosJson") || "datos"
+
+    // Log para diagnosticar en CI (GitHub Actions)
+    cy.log(`Cypress.env assertsJson=${assertsFixture} datosJson=${datosFixture}`)
+
+    cy.fixture(assertsFixture).then(function (assertsv) {
       asserts = assertsv
     })
-    cy.fixture(Cypress.env("datosJson")).then(function (datosv) {
+    cy.fixture(datosFixture).then(function (datosv) {
       datos = datosv
     })
-    cy.fixture('users/auth.json').then((authData) => {
-      datosAuth1 = authData
-    });
-    cy.fixture('users/auth-2.json').then((authData) => {
-      datosAuth2 = authData
-    });
+
+    // Para correr en local, descomentar estas lineas
+    // cy.fixture('users/auth.json').then((authData) => {
+    //   datosAuth1 = authData
+    // });
+    // cy.fixture('users/auth-2.json').then((authData) => {
+    //   datosAuth2 = authData
+    // });
 
   })
 
 
-  it.skip('EAI-70 Validar correcto funcionamiento chatbot "tito" en /tito', () => {
+  it('EAI-70 Validar correcto funcionamiento chatbot "tito" en /tito', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
-    cy.createSession(datosAuth2)
+    // cy.createSession(datosAuth2)
+    cy.createSessionGithub('2')
     
-    // Navegamos a /dashboard
-    cy.navegarA(asserts.urls.dashboard)
+    // Si necesitamos correr localmente, descomentar la siguiente linea
+    // cy.navegarA(asserts.urls.dashboard)
 
     // Esperamos que cargue el dashboard
     cy.doWait(DashboardPage.mainDashboardUser(asserts.dashboard.user_display_2))

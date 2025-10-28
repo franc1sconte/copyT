@@ -27,6 +27,15 @@ describe('Dashboard', () => {
     cy.fixture(datosFixture).then(function (datosv) {
       datos = datosv
     })
+
+    // Para correr en local, descomentar estas lineas
+    // cy.fixture('users/auth.json').then((authData) => {
+    //   datosAuth1 = authData
+    // });
+    // cy.fixture('users/auth-2.json').then((authData) => {
+    //   datosAuth2 = authData
+    // });
+
   })
 
 
@@ -37,7 +46,7 @@ describe('Dashboard', () => {
     // cy.createSession(datosAuth1)
     cy.createSessionGithub('1')
     
-    // Navegamos a /dashboard
+    // Si necesitamos correr localmente, descomentar la siguiente linea
     //cy.navegarA(asserts.urls.dashboard)
 
     // --> Validaciones en el dashboard
@@ -56,13 +65,14 @@ describe('Dashboard', () => {
    
   })
 
-  it.skip('EAI-66 - Validar redirección de botones "premium" en Dashboard', () => {
+  it('EAI-66 - Validar redirección de botones "premium" en Dashboard', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
-    cy.createSession(datosAuth1)
+    // cy.createSession(datosAuth1)
+    cy.createSessionGithub('1')
     
-    // Navegamos a /dashboard
-    cy.navegarA(asserts.urls.dashboard)
-    
+    // Si necesitamos correr localmente, descomentar la siguiente linea
+    // cy.navegarA(asserts.urls.dashboard)
+
     // Esperamos que cargue el dashboard
     cy.doWait(DashboardPage.mainDashboardUser(asserts.dashboard.user_display_1))
     
@@ -74,12 +84,13 @@ describe('Dashboard', () => {
 
   })
 
-  it.skip('EAI-68 - Validar que no se muestren las sugerencias premium en cuenta regalo', () => {
+  it('EAI-68 - Validar que no se muestren las sugerencias premium en cuenta regalo', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
-    cy.createSession(datosAuth2)
+    // cy.createSession(datosAuth2)
+    cy.createSessionGithub('2')
     
-    // Navegamos a /dashboard
-    cy.navegarA(asserts.urls.dashboard)
+    // Si necesitamos correr localmente, descomentar la siguiente linea
+    // cy.navegarA(asserts.urls.dashboard)
 
     // Esperamos que cargue el dashboard
     cy.doWait(DashboardPage.mainDashboardUser(asserts.dashboard.user_display_2))
@@ -92,12 +103,13 @@ describe('Dashboard', () => {
     
   })
 
-  it.skip('EAI-69 Validar correcto funcionamiento chatbot "tito" en dashboard', () => {
+  it('EAI-69 Validar correcto funcionamiento chatbot "tito" en dashboard', () => {
     // --> "Inyectamos" la sesion correspondiente al test para prevenir bloqueo de google
-    cy.createSession(datosAuth2)
+    // cy.createSession(datosAuth2)
+    cy.createSessionGithub('2')
 
-    // Navegamos a /dashboard
-    cy.navegarA(asserts.urls.dashboard)
+    // Si necesitamos correr localmente, descomentar la siguiente linea
+    // cy.navegarA(asserts.urls.dashboard)
 
     // Esperamos que cargue el dashboard
     cy.doWait(DashboardPage.mainDashboardUser(asserts.dashboard.user_display_2))
