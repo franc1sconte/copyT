@@ -1,0 +1,174 @@
+name: Automation SpaceGuru CI
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * 1,3,5"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      chrome_outcome: ${{ steps.chrome-tests.outcome }}
+      firefox_outcome: ${{ steps.firefox-tests.outcome }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Clean old reports
+        run: npm run clean:reports
+
+      - name: Run Chrome tests
+        id: chrome-tests
+        run: npm run test:chrome
+        continue-on-error: true
+
+      - name: Run Firefox tests
+        id: firefox-tests
+        run: npm run test:firefox
+        continue-on-error: true
+
+      - name: Prepare artifact folder with index page
+        if: always()
+        run: |
+          mkdir -p public
+          cp cypress/reports/*.html public/
+          echo '<!DOCTYPE html><html><head><title>Cypress Test Reports</title></head><body>' > public/index.html
+          echo '<h1>Latest Cypress Test Run</h1><ul>' >> public/index.html
+          for report in public/*.html; do
+            filename=$(basename "$report")
+            if [ "$filename" != "index.html" ]; then
+              echo "<li><a href=\"$filename\">$filename</a></li>" >> public/index.html
+            fi
+          done
+          echo '</ul></body></html>' >> public/index.html
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy-report:
+    needs: build-and-test
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  notify-slack:
+    needs: [build-and-test, deploy-report]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Notify Slack with build result
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          CHROME_STATUS: ${{ needs.build-and-test.outputs.chrome_outcome }}
+          FIREFOX_STATUS: ${{ needs.build-and-test.outputs.firefox_outcome }}
+          REPORT_URL: ${{ needs.deploy-report.outputs.page_url }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          ACTOR_NAME: ${{ github.actor }}
+        run: |
+          OVERALL_STATUS="success"
+          if [ "$CHROME_STATUS" != "success" ] || [ "$FIREFOX_STATUS" != "success" ]; then
+            OVERALL_STATUS="failure"
+          fi
+
+          STATUS_EMOJI="✅"
+          if [ "$OVERALL_STATUS" != "success" ]; then
+            STATUS_EMOJI="❌"
+          fi
+
+          COLOR="good"
+          if [ "$OVERALL_STATUS" = "failure" ]; then
+            COLOR="danger"
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg emoji "$STATUS_EMOJI" \
+            --arg repo "$REPO_NAME" \
+            --arg branch "$BRANCH_NAME" \
+            --arg workflow "$WORKFLOW_NAME" \
+            --arg status "$OVERALL_STATUS" \
+            --arg chrome_status "$CHROME_STATUS" \
+            --arg firefox_status "$FIREFOX_STATUS" \
+            --arg url "$REPORT_URL" \
+            --arg actor "$ACTOR_NAME" \
+            --arg color "$COLOR" \
+            '{
+              "attachments": [
+                {
+                  "color": $color,
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Cypress Test Results: \($status | ascii_upcase) \($emoji)",
+                        "emoji": true
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        { "type": "mrkdwn", "text": "*Repository:*\n\($repo)" },
+                        { "type": "mrkdwn", "text": "*Branch:*\n\($branch)" },
+                        { "type": "mrkdwn", "text": "*Result:*\n\($status)" },
+                        { "type": "mrkdwn", "text": "*Triggered by:*\n\($actor)" },
+                        { "type": "mrkdwn", "text": "*Chrome:*\n*\($chrome_status)*" },
+                        { "type": "mrkdwn", "text": "*Firefox:*\n*\($firefox_status)*" }
+                      ]
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Full Report",
+                            "emoji": true
+                          },
+                          "url": $url,
+                          "style": "primary"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }')
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            $SLACK_WEBHOOK_URL

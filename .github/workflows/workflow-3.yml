@@ -1,0 +1,93 @@
+name: Run Cypress por ambiente + Reporte HTML
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Seleccionar entorno"
+        required: true
+        default: "Produ"
+        type: choice
+        options:
+          - Staging
+          - Produ
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configurar variables según entorno
+        id: set-env
+        run: |
+          echo "Entorno seleccionado: ${{ github.event.inputs.environment }}"
+          if [ "${{ github.event.inputs.environment }}" == "Staging" ]; then
+            echo "BASE_URL=${{ secrets.BASE_URL_STAGING }}" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=${{ secrets.BASE_URL_PRODU }}" >> $GITHUB_ENV
+          fi
+
+      - name: Ejecutar Cypress
+        env:
+          USER_ID_2: ${{ secrets.USER_ID_2 }}
+          USER_NAME_2: ${{ secrets.USER_NAME_2 }}
+          USER_EMAIL_2: ${{ secrets.USER_EMAIL_2 }}
+          USER_AVATAR_2: ${{ secrets.USER_AVATAR_2 }}
+          USER_TOKEN_2: ${{ secrets.USER_TOKEN_2 }}
+          USER_ID_1: ${{ secrets.USER_ID_1 }}
+          USER_NAME_1: ${{ secrets.USER_NAME_1 }}
+          USER_EMAIL_1: ${{ secrets.USER_EMAIL_1 }}
+          USER_AVATAR_1: ${{ secrets.USER_AVATAR_1 }}
+          USER_TOKEN_1: ${{ secrets.USER_TOKEN_1 }}
+          IS_AUTHENTICATED: ${{ secrets.IS_AUTHENTICATED }}
+          WAS_ON_BOARDED: ${{ secrets.WAS_ON_BOARDED }}
+          BASE_URL: ${{ env.BASE_URL }}
+        run: |
+          npm ci
+          npx cypress run --browser chrome
+
+      - name: Upload Cypress report
+        if: always()
+        run: |
+          mkdir -p public
+          cp cypress/reports/*.html public/
+          echo '<!DOCTYPE html><html><head><title>Cypress Test Reports</title></head><body>' > public/index.html
+          echo '<h1>Latest Cypress Test Run</h1><ul>' >> public/index.html
+          for report in public/*.html; do
+            filename=$(basename "$report")
+            if [ "$filename" != "index.html" ]; then
+              echo "<li><a href=\"$filename\">$filename</a></li>" >> public/index.html
+            fi
+          done
+          echo '</ul></body></html>' >> public/index.html
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+
+  deploy-report:
+    needs: cypress-run
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
