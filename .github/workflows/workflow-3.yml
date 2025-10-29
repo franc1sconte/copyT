@@ -56,47 +56,44 @@ jobs:
           npm run clean:reports
           npx cypress run --browser chrome
 
-      - name: Upload Cypress report (generate public folder)
-        # Ejecutar siempre para que el paso de subida tenga contenido aunque los tests fallen
+      - name: Generar carpeta public con reportes HTML
         if: always()
         run: |
           set -eux
           echo "Listando archivos de reports (cypress/reports) antes de copiar"
           ls -la cypress/reports || true
           mkdir -p public
+          # Copiamos todos los HTML generados por el reporter al directorio public
           cp cypress/reports/*.html public/ || true
-          echo '<!DOCTYPE html><html><head><title>Cypress Test Reports</title></head><body>' > public/index.html
-          echo '<h1>Latest Cypress Test Run</h1><ul>' >> public/index.html
-          for report in public/*.html; do
-            filename=$(basename "$report")
-            if [ "$filename" != "index.html" ]; then
-              echo "<li><a href=\"$filename\">$filename</a></li>" >> public/index.html
-            fi
-          done
-          echo '</ul></body></html>' >> public/index.html
+          # Si tu reporter genera carpetas con assets (js/css/screenshots), cópialas también
+          if [ -d "cypress/reports/assets" ]; then
+            cp -r cypress/reports/assets public/ || true
+          fi
           echo "Contenido de public/ creado:"
           ls -la public || true
-          echo "Index.html preview:"
-          sed -n '1,120p' public/index.html || true
 
-      - name: Upload Pages artifact
+      - name: Subir Pages artifact
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
           path: public
 
+      - name: Subir reporte como artifact (backup)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-html-reports
+          path: cypress/reports
 
   deploy-report:
     needs: cypress-run
     permissions:
       pages: write
       id-token: write
-    environment:
-      name: github-pages
     runs-on: ubuntu-latest
-    outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
