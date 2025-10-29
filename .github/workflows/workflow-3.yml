@@ -65,9 +65,7 @@ jobs:
           BASE_URL: ${{ env.BASE_URL }}
         run: |
           npm ci
-
-      - name: Run cypress tests
-        run: npx cypress run --browser chrome
+          cypress run --browser chrome
 
       - name: Upload Cypress report
         if: always()
