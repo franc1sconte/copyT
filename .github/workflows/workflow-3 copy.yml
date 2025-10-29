@@ -1,4 +1,4 @@
-name: Run Cypress por ambiente + Reporte HTML
+name: Copia backup
 
 on:
   workflow_dispatch:
@@ -87,7 +87,6 @@ jobs:
 
   deploy-report:
     needs: cypress-run
-    if: ${{ always() }}
     permissions:
       pages: write
       id-token: write
