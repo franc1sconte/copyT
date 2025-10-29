@@ -12,11 +12,6 @@ on:
           - Staging
           - Produ
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -29,14 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Clean old reports
-        run: npm run clean:reports
+          node-version: 22
 
       - name: Configurar variables según entorno
         id: set-env
@@ -65,13 +53,18 @@ jobs:
           BASE_URL: ${{ env.BASE_URL }}
         run: |
           npm ci
-          cypress run --browser chrome
+          npm run clean:reports
+          npx cypress run --browser chrome
 
-      - name: Upload Cypress report
+      - name: Upload Cypress report (generate public folder)
+        # Ejecutar siempre para que el paso de subida tenga contenido aunque los tests fallen
         if: always()
         run: |
+          set -eux
+          echo "Listando archivos de reports (cypress/reports) antes de copiar"
+          ls -la cypress/reports || true
           mkdir -p public
-          cp cypress/reports/*.html public/
+          cp cypress/reports/*.html public/ || true
           echo '<!DOCTYPE html><html><head><title>Cypress Test Reports</title></head><body>' > public/index.html
           echo '<h1>Latest Cypress Test Run</h1><ul>' >> public/index.html
           for report in public/*.html; do
@@ -81,6 +74,10 @@ jobs:
             fi
           done
           echo '</ul></body></html>' >> public/index.html
+          echo "Contenido de public/ creado:"
+          ls -la public || true
+          echo "Index.html preview:"
+          sed -n '1,120p' public/index.html || true
 
       - name: Upload Pages artifact
         if: always()
@@ -100,6 +97,16 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download Pages artifact (debug)
+        uses: actions/download-pages-artifact@v3
+        with:
+          path: public
+
+      - name: List downloaded public files
+        run: |
+          echo "Contenido descargado para deploy:"
+          ls -la public || true
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
