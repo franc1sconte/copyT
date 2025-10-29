@@ -97,16 +97,6 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download Pages artifact (debug)
-        uses: actions/download-pages-artifact@v3
-        with:
-          path: public
-
-      - name: List downloaded public files
-        run: |
-          echo "Contenido descargado para deploy:"
-          ls -la public || true
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
